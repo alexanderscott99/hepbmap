@@ -994,14 +994,17 @@ function initialiseMap() {
     [61, 3]
   ]);
 
-  state.geoLayer = L.geoJSON(state.geojson, {
-    style: {
-      fillColor: "#cccccc",
-      fillOpacity: 0.8,
-      color: "#ffffff",
-      weight: 0.1,
-      opacity: 1
-    },
+ state.geoLayer = L.geoJSON(state.geojson, {
+  smoothFactor: 1.5,
+
+  style: {
+    fillColor: "#cccccc",
+    fillOpacity: 0.8,
+    color: "#ffffff",
+    weight: 0.1,
+    opacity: 1
+  },
+
 
     onEachFeature(feature, layer) {
       const code = feature.properties.msoa21_code;
