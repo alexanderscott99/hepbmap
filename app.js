@@ -974,7 +974,7 @@ function initialiseMap() {
     minZoom: 5,
     maxZoom: 14,
     worldCopyJump: false,
-    preferCanvas: true
+    preferCanvas: false
   });
 
   L.tileLayer(
