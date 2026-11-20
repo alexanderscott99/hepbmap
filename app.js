@@ -62,8 +62,6 @@ function escapeHtml(value) {
 
 /* ============================================================
    NUMBER FORMATTING
-   Whole numbers remain whole numbers.
-   Other numbers show up to two decimal places.
    ============================================================ */
 
 function formatNumber(value) {
@@ -98,10 +96,7 @@ function formatInteger(value) {
 
 function setLoadingMessage(message) {
   const element = byId("loading-message");
-
-  if (element) {
-    element.textContent = message;
-  }
+  if (element) element.textContent = message;
 }
 
 function hideLoadingScreen() {
@@ -120,24 +115,16 @@ function showFatalError(error) {
   console.error(error);
 
   const loadingScreen = byId("loading-screen");
-
-  if (!loadingScreen) {
-    return;
-  }
+  if (!loadingScreen) return;
 
   loadingScreen.innerHTML = `
     <div class="error-box">
       <h2>The website could not load</h2>
-
-      <p>
-        ${escapeHtml(error?.message || String(error))}
-      </p>
-
+      <p>${escapeHtml(error?.message || String(error))}</p>
       <p>
         Check that the five files are present inside the
         <strong>data</strong> folder and that the website is being
-        opened through a local web server rather than by
-        double-clicking index.html.
+        opened through a web server.
       </p>
     </div>
   `;
@@ -178,11 +165,9 @@ async function loadData() {
   state.msoaLookup = msoaLookup;
 
   setLoadingMessage("Loading detailed MSOA population data...");
-
   state.detail = await fetchJson("data/msoa_country.json");
 
   setLoadingMessage("Loading simplified MSOA boundaries...");
-
   state.geojson = await fetchJson("data/msoa_boundaries.geojson");
 
   state.dataLoaded = true;
@@ -198,6 +183,7 @@ function buildIndices() {
   state.prevalenceByCountry.clear();
   state.recordsByMsoa.clear();
   state.recordsByCountry.clear();
+  state.selectedCountries.clear();
 
   for (const row of state.msoaLookup) {
     state.msoaByCode.set(row.msoa21_code, row);
@@ -240,40 +226,21 @@ function buildIndices() {
 
 function openMainTab(tabId) {
   document.querySelectorAll(".tab-button").forEach(button => {
-    button.classList.toggle(
-      "active",
-      button.dataset.tab === tabId
-    );
+    button.classList.toggle("active", button.dataset.tab === tabId);
   });
 
   document.querySelectorAll(".tab-panel").forEach(panel => {
-    panel.classList.toggle(
-      "active",
-      panel.id === tabId
-    );
+    panel.classList.toggle("active", panel.id === tabId);
   });
 
   if (tabId === "map-tab" && state.map) {
-    window.setTimeout(() => {
-      state.map.invalidateSize();
-    }, 100);
+    window.setTimeout(() => state.map.invalidateSize(), 100);
   }
 
-  if (tabId === "hotspots") {
-    renderHotspotTable();
-  }
-
-  if (tabId === "country-profiles") {
-    renderCountryProfile();
-  }
-
-  if (tabId === "local-authorities") {
-    renderAuthorityTables();
-  }
-
-  if (tabId === "data-tab") {
-    renderMainDataTables();
-  }
+  if (tabId === "hotspots") renderHotspotTable();
+  if (tabId === "country-profiles") renderCountryProfile();
+  if (tabId === "local-authorities") renderAuthorityTables();
+  if (tabId === "data-tab") renderMainDataTables();
 }
 
 function initialiseNavigation() {
@@ -330,15 +297,9 @@ function renderOverview() {
     0
   );
 
-  byId("overview-cases").textContent =
-    formatNumber(totalCases);
-
-  byId("overview-population").textContent =
-    formatNumber(totalPopulation);
-
-  byId("overview-msoas").textContent =
-    formatInteger(state.msoaLookup.length);
-
+  byId("overview-cases").textContent = formatNumber(totalCases);
+  byId("overview-population").textContent = formatNumber(totalPopulation);
+  byId("overview-msoas").textContent = formatInteger(state.msoaLookup.length);
   byId("overview-countries-count").textContent =
     formatInteger(state.countrySummary.length);
 
@@ -362,12 +323,8 @@ function renderOverview() {
       tableRow.innerHTML = `
         <td>${escapeHtml(row.COB)}</td>
         <td class="numeric">${formatNumber(row.population)}</td>
-        <td class="numeric">
-          ${formatNumber(row.prevalence_percent)}
-        </td>
-        <td class="numeric">
-          ${formatNumber(row.expected_cases)}
-        </td>
+        <td class="numeric">${formatNumber(row.prevalence_percent)}</td>
+        <td class="numeric">${formatNumber(row.expected_cases)}</td>
       `;
 
       tableBody.appendChild(tableRow);
@@ -381,23 +338,18 @@ function renderOverview() {
 
 function initialiseAuthoritySelector() {
   const element = byId("authority-select");
-
   element.innerHTML = "";
 
   const allOption = document.createElement("option");
-
   allOption.value = "__ALL__";
   allOption.textContent = "All England and Wales";
   allOption.selected = true;
-
   element.appendChild(allOption);
 
   for (const authority of state.authorityLookup) {
     const option = document.createElement("option");
-
     option.value = authority.la_code;
     option.textContent = authority.la_name;
-
     element.appendChild(option);
   }
 
@@ -503,24 +455,18 @@ function renderMsoaCheckboxes() {
 
   for (const area of availableMsoas) {
     const wrapper = document.createElement("div");
-
     wrapper.className = "checkbox-item";
 
     const checkbox = document.createElement("input");
-
     checkbox.type = "checkbox";
     checkbox.id = `msoa-${area.msoa21_code}`;
     checkbox.value = area.msoa21_code;
-    checkbox.checked = state.selectedMsoas.has(
-      area.msoa21_code
-    );
+    checkbox.checked = state.selectedMsoas.has(area.msoa21_code);
 
     const label = document.createElement("label");
-
     label.htmlFor = checkbox.id;
     label.textContent =
-      `${area.la_name} | ${area.msoa21_name} | ` +
-      `${area.msoa21_code}`;
+      `${area.la_name} | ${area.msoa21_name} | ${area.msoa21_code}`;
 
     checkbox.addEventListener("change", () => {
       if (checkbox.checked) {
@@ -538,7 +484,6 @@ function renderMsoaCheckboxes() {
 
     wrapper.appendChild(checkbox);
     wrapper.appendChild(label);
-
     fragment.appendChild(wrapper);
   }
 
@@ -566,7 +511,6 @@ function initialiseMsoaButtons() {
 
     if (state.selectedAuthorities.has("__ALL__")) {
       state.selectedAuthorities.clear();
-
       state.authoritySelect.clear(true);
     }
 
@@ -582,7 +526,6 @@ function initialiseMsoaButtons() {
 
 function renderCountryCheckboxes() {
   const container = byId("country-checkbox-list");
-
   container.innerHTML = "";
 
   const countries = state.countrySummary
@@ -593,20 +536,16 @@ function renderCountryCheckboxes() {
 
   for (const country of countries) {
     const wrapper = document.createElement("div");
-
     wrapper.className = "checkbox-item";
 
     const checkbox = document.createElement("input");
-
     checkbox.type = "checkbox";
     checkbox.id =
       `country-${country.COB.replaceAll(/[^a-zA-Z0-9]/g, "-")}`;
-
     checkbox.value = country.COB;
     checkbox.checked = state.selectedCountries.has(country.COB);
 
     const label = document.createElement("label");
-
     label.htmlFor = checkbox.id;
     label.textContent = country.COB;
 
@@ -622,7 +561,6 @@ function renderCountryCheckboxes() {
 
     wrapper.appendChild(checkbox);
     wrapper.appendChild(label);
-
     fragment.appendChild(wrapper);
   }
 
@@ -661,9 +599,7 @@ function calculateAreaSummary(code, countries) {
   const contributions = [];
 
   for (const record of records) {
-    if (!countries.has(record.country)) {
-      continue;
-    }
+    if (!countries.has(record.country)) continue;
 
     const prevalence =
       state.prevalenceByCountry.get(record.country) || 0;
@@ -709,7 +645,6 @@ function calculateNationalSummary() {
       name: area.msoa21_name,
       laCode: area.la_code,
       laName: area.la_name,
-
       population: summary.population,
       expectedCases: summary.expectedCases,
       casesPer1000: summary.casesPer1000,
@@ -862,17 +797,13 @@ function getMetricValue(row) {
 }
 
 function calculateQuantile(sortedValues, probability) {
-  if (!sortedValues.length) {
-    return 0;
-  }
+  if (!sortedValues.length) return 0;
 
   const position = (sortedValues.length - 1) * probability;
   const lower = Math.floor(position);
   const upper = Math.ceil(position);
 
-  if (lower === upper) {
-    return sortedValues[lower];
-  }
+  if (lower === upper) return sortedValues[lower];
 
   const fraction = position - lower;
 
@@ -925,9 +856,7 @@ function createColourFunction(rows) {
   }
 
   function colour(value) {
-    if (!Number.isFinite(value)) {
-      return "#cccccc";
-    }
+    if (!Number.isFinite(value)) return "#cccccc";
 
     if (maximum === minimum) {
       return palette[palette.length - 1];
@@ -994,17 +923,16 @@ function initialiseMap() {
     [61, 3]
   ]);
 
- state.geoLayer = L.geoJSON(state.geojson, {
-  smoothFactor: 1.5,
+  state.geoLayer = L.geoJSON(state.geojson, {
+    smoothFactor: 1.5,
 
-  style: {
-    fillColor: "#cccccc",
-    fillOpacity: 0.8,
-    color: "#ffffff",
-    weight: 0.1,
-    opacity: 1
-  },
-
+    style: {
+      fillColor: "#cccccc",
+      fillOpacity: 0.8,
+      color: "#ffffff",
+      weight: 0.1,
+      opacity: 1
+    },
 
     onEachFeature(feature, layer) {
       const code = feature.properties.msoa21_code;
@@ -1018,9 +946,7 @@ function initialiseMap() {
 }
 
 function renderMap() {
-  if (!state.map || !state.geoLayer) {
-    return;
-  }
+  if (!state.map || !state.geoLayer) return;
 
   showMapLoading();
 
@@ -1052,7 +978,6 @@ function renderMap() {
         });
 
         layer.unbindTooltip();
-
         return;
       }
 
@@ -1091,7 +1016,6 @@ function renderMap() {
     });
 
     renderLegend(scale);
-
     hideMapLoading();
   }, 20);
 }
@@ -1140,14 +1064,12 @@ function renderLegend(scale) {
             vertical-align:middle;
             background:${scale.palette[index]};
           "></span>
-
           ${formatNumber(lower)}–${formatNumber(upper)}
         </div>
       `;
     }
 
     div.innerHTML = html;
-
     return div;
   };
 
@@ -1205,11 +1127,8 @@ function renderSelectedMsoaProfile() {
 
   if (!state.selectedMsoaCode) {
     profile.innerHTML = `
-      <p>
-        Click a polygon to view its profile.
-      </p>
+      <p>Click a polygon to view its profile.</p>
     `;
-
     return;
   }
 
@@ -1217,33 +1136,26 @@ function renderSelectedMsoaProfile() {
     area => area.code === state.selectedMsoaCode
   );
 
-  if (!row) {
-    return;
-  }
+  if (!row) return;
 
   profile.innerHTML = `
     <h3>${escapeHtml(row.name)}</h3>
-
     <p>
       ${escapeHtml(row.laName)} |
       ${escapeHtml(row.code)}
     </p>
-
     <p>
       <strong>${formatNumber(row.expectedCases)}</strong>
       expected CHB cases
     </p>
-
     <p>
       ${formatNumber(row.population)}
       included residents
     </p>
-
     <p>
       Cases per 1,000 included residents:
       ${formatNumber(row.casesPer1000)}
     </p>
-
     <p>
       National burden rank:
       ${formatInteger(row.nationalRank)}
@@ -1264,15 +1176,9 @@ function renderSelectedMsoaProfile() {
 
     tableRow.innerHTML = `
       <td>${escapeHtml(contribution.country)}</td>
-      <td class="numeric">
-        ${formatNumber(contribution.population)}
-      </td>
-      <td class="numeric">
-        ${formatNumber(contribution.prevalence)}
-      </td>
-      <td class="numeric">
-        ${formatNumber(contribution.expectedCases)}
-      </td>
+      <td class="numeric">${formatNumber(contribution.population)}</td>
+      <td class="numeric">${formatNumber(contribution.prevalence)}</td>
+      <td class="numeric">${formatNumber(contribution.expectedCases)}</td>
     `;
 
     tableBody.appendChild(tableRow);
@@ -1287,14 +1193,12 @@ function renderSelectedMsoaProfile() {
 
 function renderContributionChart(contributions) {
   const container = byId("msoa-contribution-chart");
-
   container.innerHTML = "";
 
   if (!contributions.length) {
     container.innerHTML = `
       <p>No expected cases for the selected populations.</p>
     `;
-
     return;
   }
 
@@ -1304,7 +1208,6 @@ function renderContributionChart(contributions) {
 
   for (const row of contributions) {
     const chartRow = document.createElement("div");
-
     chartRow.className = "bar-chart-row";
 
     const width =
@@ -1339,6 +1242,7 @@ function renderContributionChart(contributions) {
 
 /* ============================================================
    DATATABLE HELPERS
+   CORRECTED: createDataTable DOES NOT destroy the rows again.
    ============================================================ */
 
 function destroyTable(tableId) {
@@ -1357,8 +1261,6 @@ function destroyTable(tableId) {
 }
 
 function createDataTable(tableId, options = {}) {
-  destroyTable(tableId);
-
   state.tables[tableId] = new DataTable(
     `#${tableId}`,
     {
@@ -1478,13 +1380,13 @@ function initialiseProfileCountries() {
 function renderCountryProfile() {
   const country = byId("profile-country-select").value;
 
-  if (!country) {
-    return;
-  }
+  if (!country) return;
 
   const summary = state.countrySummary.find(
     row => row.COB === country
   );
+
+  if (!summary) return;
 
   byId("country-profile-card").innerHTML = `
     <h3>${escapeHtml(country)}</h3>
@@ -1518,7 +1420,6 @@ function renderCountryProfile() {
           name: area?.msoa21_name || record.code,
           laName: area?.la_name || "",
           population: record.population,
-
           expectedCases:
             record.population *
             prevalence /
@@ -1604,9 +1505,7 @@ function calculateAuthoritySummary() {
   const grouped = new Map();
 
   for (const row of state.nationalSummary) {
-    if (row.laCode === "UNKNOWN") {
-      continue;
-    }
+    if (row.laCode === "UNKNOWN") continue;
 
     if (!grouped.has(row.laCode)) {
       grouped.set(row.laCode, {
@@ -1674,9 +1573,7 @@ function renderAuthorityTables() {
 function renderAuthorityDetails() {
   const code = byId("profile-authority-select").value;
 
-  if (!code) {
-    return;
-  }
+  if (!code) return;
 
   const areas = state.nationalSummary
     .filter(row => row.laCode === code)
@@ -1800,9 +1697,8 @@ function renderMsoaDataTable() {
 function renderDetailTable() {
   /*
     Rendering all 377,728 records into HTML at once would freeze
-    many browsers. The website therefore displays the first
-    10,000 records matching the currently selected countries.
-    The CSV download still includes the complete selected dataset.
+    many browsers. Display the first 10,000 matching records.
+    CSV download still includes the complete selected dataset.
   */
 
   const filtered = state.detail
@@ -1850,7 +1746,6 @@ function renderDetailTable() {
 
 function csvEscape(value) {
   const text = String(value ?? "");
-
   return `"${text.replaceAll('"', '""')}"`;
 }
 
@@ -1892,7 +1787,6 @@ function initialiseDownloads() {
   byId("download-hotspots").addEventListener("click", () => {
     downloadCsv(
       `CHB_hotspots_${todayString()}.csv`,
-
       [
         "MSOA name",
         "MSOA code",
@@ -1902,7 +1796,6 @@ function initialiseDownloads() {
         "Included population",
         "Cases per 1,000 included residents"
       ],
-
       state.currentSummary.map(row => [
         row.name,
         row.code,
@@ -1918,14 +1811,12 @@ function initialiseDownloads() {
   byId("download-country").addEventListener("click", () => {
     downloadCsv(
       `CHB_country_${todayString()}.csv`,
-
       [
         "Country of birth",
         "Population",
         "Prevalence (%)",
         "Expected CHB cases"
       ],
-
       state.countrySummary.map(row => [
         row.COB,
         row.population,
@@ -1938,7 +1829,6 @@ function initialiseDownloads() {
   byId("download-msoa").addEventListener("click", () => {
     downloadCsv(
       `CHB_MSOA_${todayString()}.csv`,
-
       [
         "MSOA name",
         "MSOA code",
@@ -1948,7 +1838,6 @@ function initialiseDownloads() {
         "Expected CHB cases",
         "Cases per 1,000 included residents"
       ],
-
       state.nationalSummary.map(row => [
         row.name,
         row.code,
@@ -1991,7 +1880,6 @@ function initialiseDownloads() {
 
     downloadCsv(
       `CHB_MSOA_country_${todayString()}.csv`,
-
       [
         "MSOA name",
         "MSOA code",
@@ -2001,7 +1889,6 @@ function initialiseDownloads() {
         "Prevalence (%)",
         "Expected CHB cases"
       ],
-
       rows
     );
   });
@@ -2011,7 +1898,6 @@ function initialiseDownloads() {
 
     downloadCsv(
       `CHB_Local_Authorities_${todayString()}.csv`,
-
       [
         "Local Authority",
         "Authority code",
@@ -2020,7 +1906,6 @@ function initialiseDownloads() {
         "Expected CHB cases",
         "Cases per 1,000 included residents"
       ],
-
       rows.map(row => [
         row.name,
         row.code,
@@ -2056,7 +1941,6 @@ function initialiseDownloads() {
 
     downloadCsv(
       `CHB_country_profile_${todayString()}.csv`,
-
       [
         "MSOA name",
         "MSOA code",
@@ -2064,7 +1948,6 @@ function initialiseDownloads() {
         "Population",
         "Expected CHB cases"
       ],
-
       rows
     );
   });
@@ -2113,9 +1996,7 @@ function initialiseMapControls() {
    ============================================================ */
 
 function updateAllOutputs() {
-  if (!state.dataLoaded) {
-    return;
-  }
+  if (!state.dataLoaded) return;
 
   state.nationalSummary =
     calculateNationalSummary();
