@@ -1,0 +1,1265 @@
+/* ============================================================
+   ESTIMATED BURDEN OF CHRONIC HEPATITIS B
+   Static website styling
+   ============================================================ */
+
+
+/* ============================================================
+   COLOURS / VARIABLES
+   ============================================================ */
+
+:root {
+  --nhs-blue: #005eb8;
+  --nhs-dark-blue: #003d78;
+  --nhs-light-blue: #e8f1f8;
+
+  --orange: #d95f0e;
+
+  --background: #ffffff;
+  --background-soft: #f5f7fa;
+  --background-grey: #f5f5f5;
+
+  --text: #222222;
+  --text-muted: #555555;
+
+  --border: #d9d9d9;
+  --border-light: #e8e8e8;
+
+  --shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08);
+
+  --radius: 5px;
+}
+
+
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+  background: var(--background);
+
+  color: var(--text);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+a {
+  color: var(--nhs-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+select,
+input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border-light);
+
+  margin-top: 28px;
+  margin-bottom: 28px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+}
+
+h2 {
+  margin-top: 5px;
+}
+
+h3 {
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+
+/* ============================================================
+   MAIN PAGE
+   ============================================================ */
+
+.page-container {
+  width: 98%;
+  max-width: none;
+
+  margin: 0 auto;
+
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.app-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 24px;
+
+  padding-top: 18px;
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid #dddddd;
+}
+
+.header-text {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.header-text h1 {
+  margin-top: 0;
+  margin-bottom: 6px;
+
+  font-size: 28px;
+}
+
+.subtitle {
+  margin-top: 0;
+  margin-bottom: 12px;
+
+  color: var(--text-muted);
+
+  font-size: 17px;
+}
+
+.author {
+  margin-bottom: 0;
+}
+
+.logos {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+}
+
+.logos img {
+  max-width: 180px;
+  max-height: 100px;
+
+  width: auto;
+  height: auto;
+
+  object-fit: contain;
+}
+
+
+/* ============================================================
+   MAIN NAVIGATION TABS
+   ============================================================ */
+
+.main-tabs {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 2px;
+
+  margin-top: 15px;
+  margin-bottom: 22px;
+
+  padding-bottom: 0;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-button {
+  border: 0;
+
+  background: transparent;
+
+  color: #444444;
+
+  padding: 11px 15px;
+
+  font-size: 15px;
+
+  border-bottom: 3px solid transparent;
+}
+
+.tab-button:hover {
+  background: #f4f4f4;
+
+  color: var(--nhs-blue);
+}
+
+.tab-button.active {
+  color: var(--nhs-blue);
+
+  font-weight: 600;
+
+  border-bottom-color: var(--nhs-blue);
+
+  background: #f8fbfe;
+}
+
+
+/* ============================================================
+   TAB PANELS
+   ============================================================ */
+
+.tab-panel {
+  display: none;
+
+  padding-top: 5px;
+  padding-bottom: 30px;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+
+/* ============================================================
+   TEXT
+   ============================================================ */
+
+.text-section {
+  max-width: 1000px;
+
+  line-height: 1.65;
+}
+
+
+/* ============================================================
+   SUMMARY CARDS
+   ============================================================ */
+
+.summary-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-top: 25px;
+  margin-bottom: 22px;
+}
+
+.summary-card {
+  background: var(--background-soft);
+
+  border-left: 4px solid var(--nhs-blue);
+
+  padding: 16px;
+
+  border-radius: var(--radius);
+
+  box-shadow: var(--shadow);
+}
+
+.summary-label {
+  color: var(--text-muted);
+
+  font-size: 14px;
+
+  margin-bottom: 5px;
+}
+
+.big-number {
+  font-size: 25px;
+
+  font-weight: bold;
+
+  color: #111111;
+}
+
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.button-row {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.button-row.compact {
+  gap: 6px;
+}
+
+.primary-button,
+.secondary-button {
+  border-radius: 4px;
+
+  padding: 8px 13px;
+
+  font-size: 14px;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.primary-button {
+  border: 1px solid var(--nhs-blue);
+
+  background: var(--nhs-blue);
+
+  color: #ffffff;
+}
+
+.primary-button:hover {
+  background: var(--nhs-dark-blue);
+
+  border-color: var(--nhs-dark-blue);
+}
+
+.secondary-button {
+  border: 1px solid #bbbbbb;
+
+  background: #ffffff;
+
+  color: #333333;
+}
+
+.secondary-button:hover {
+  background: #f0f0f0;
+
+  border-color: #999999;
+}
+
+
+/* ============================================================
+   FORM CONTROLS
+   ============================================================ */
+
+label {
+  display: block;
+
+  margin-top: 13px;
+  margin-bottom: 5px;
+
+  font-weight: 600;
+}
+
+select {
+  width: 100%;
+
+  min-height: 36px;
+
+  padding: 6px;
+
+  border: 1px solid #cccccc;
+
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: var(--text);
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--nhs-blue);
+}
+
+.inline-checkbox {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  font-weight: normal;
+
+  margin-top: 13px;
+}
+
+.help-text {
+  color: var(--text-muted);
+
+  font-size: 13px;
+
+  margin-top: 7px;
+}
+
+
+/* ============================================================
+   TOM SELECT
+   ============================================================ */
+
+.ts-wrapper {
+  width: 100%;
+}
+
+.ts-control {
+  border-color: #cccccc;
+
+  border-radius: 4px;
+
+  min-height: 38px;
+}
+
+.ts-wrapper.multi .ts-control > div {
+  background: var(--nhs-light-blue);
+
+  color: var(--nhs-dark-blue);
+
+  border-radius: 3px;
+}
+
+
+/* ============================================================
+   MAP LAYOUT
+   ============================================================ */
+
+.map-layout {
+  display: grid;
+
+  grid-template-columns:
+    minmax(250px, 290px)
+    minmax(0, 1fr);
+
+  gap: 20px;
+
+  align-items: start;
+}
+
+.map-sidebar {
+  min-width: 0;
+
+  padding-right: 5px;
+}
+
+.map-sidebar h3:first-child {
+  margin-top: 0;
+}
+
+.map-main {
+  min-width: 0;
+}
+
+
+/* ============================================================
+   MSOA / COUNTRY CHECKBOX LISTS
+   ============================================================ */
+
+.checkbox-scroll {
+  max-height: 310px;
+
+  overflow-y: auto;
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius);
+
+  padding: 9px;
+
+  background: #ffffff;
+}
+
+.country-list {
+  max-height: 300px;
+}
+
+.checkbox-item {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 7px;
+
+  padding: 4px 2px;
+
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.checkbox-item:last-child {
+  border-bottom: 0;
+}
+
+.checkbox-item input {
+  margin-top: 4px;
+
+  flex: 0 0 auto;
+}
+
+.checkbox-item label {
+  display: block;
+
+  flex: 1;
+
+  margin: 0;
+
+  font-weight: normal;
+
+  cursor: pointer;
+}
+
+.selection-summary {
+  color: var(--text-muted);
+
+  font-size: 13px;
+
+  margin-top: 8px;
+  margin-bottom: 7px;
+}
+
+
+/* ============================================================
+   MAP SETTINGS
+   ============================================================ */
+
+.settings-panel {
+  background: var(--background-grey);
+
+  padding: 12px;
+
+  margin-top: 16px;
+
+  border-radius: var(--radius);
+}
+
+.settings-panel h3 {
+  margin-top: 0;
+}
+
+
+/* ============================================================
+   MAP SUMMARY
+   ============================================================ */
+
+.summary-box {
+  padding: 12px;
+
+  background: var(--background-soft);
+
+  margin-bottom: 12px;
+
+  border-left: 4px solid var(--orange);
+
+  border-radius: 3px;
+}
+
+
+/* ============================================================
+   LEAFLET MAP
+   ============================================================ */
+
+.map-container {
+  position: relative;
+
+  width: 100%;
+
+  min-height: 650px;
+
+  background: #eeeeee;
+}
+
+#map {
+  width: 100%;
+
+  height: 650px;
+
+  min-height: 650px;
+
+  z-index: 1;
+}
+
+
+/* ============================================================
+   MAP LOADING OVERLAY
+   ============================================================ */
+
+.map-loading {
+  display: none;
+
+  position: absolute;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  z-index: 1000;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.84
+    );
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  pointer-events: none;
+}
+
+.map-loading.visible {
+  display: flex;
+}
+
+
+/* ============================================================
+   MAIN INITIAL LOADING SCREEN
+   ============================================================ */
+
+.loading-screen {
+  position: fixed;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  z-index: 10000;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.96
+    );
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  padding: 20px;
+}
+
+.loading-screen.hidden {
+  display: none;
+}
+
+.loading-spinner {
+  width: 46px;
+  height: 46px;
+
+  border: 6px solid #d9d9d9;
+
+  border-top: 6px solid var(--nhs-blue);
+
+  border-radius: 50%;
+
+  animation:
+    loading-spin
+    0.8s
+    linear
+    infinite;
+
+  margin-bottom: 14px;
+}
+
+.loading-title {
+  color: #222222;
+
+  font-size: 17px;
+
+  font-weight: 600;
+
+  margin-bottom: 4px;
+
+  text-align: center;
+}
+
+.loading-message {
+  color: #555555;
+
+  font-size: 13px;
+
+  text-align: center;
+
+  max-width: 420px;
+}
+
+@keyframes loading-spin {
+
+  0% {
+    transform:
+      rotate(0deg);
+  }
+
+  100% {
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+/* ============================================================
+   MSOA / COUNTRY PROFILE CARDS
+   ============================================================ */
+
+.profile-card,
+#msoa-profile {
+  background: var(--background-soft);
+
+  border-left: 4px solid var(--nhs-blue);
+
+  padding: 16px;
+
+  margin-top: 15px;
+  margin-bottom: 18px;
+
+  border-radius: var(--radius);
+}
+
+.profile-card h3,
+#msoa-profile h3,
+#msoa-profile h4 {
+  margin-top: 0;
+}
+
+
+/* ============================================================
+   TWO COLUMN SECTION
+   ============================================================ */
+
+.two-column-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+
+  align-items: start;
+}
+
+
+/* ============================================================
+   SIMPLE TABLES
+   ============================================================ */
+
+.table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  margin-top: 15px;
+  margin-bottom: 25px;
+}
+
+.simple-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  background: #ffffff;
+}
+
+.simple-table th,
+.simple-table td {
+  padding: 8px 10px;
+
+  border-bottom:
+    1px solid
+    #dddddd;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.simple-table th {
+  background: #f5f5f5;
+
+  font-weight: 600;
+}
+
+.simple-table tbody tr:hover {
+  background: #f8fbfe;
+}
+
+
+/* ============================================================
+   DATATABLES
+   ============================================================ */
+
+div.dt-container {
+  width: 100%;
+}
+
+table.dataTable {
+  width: 100% !important;
+
+  font-size: 14px;
+}
+
+table.dataTable thead th {
+  background: #f5f5f5;
+}
+
+table.dataTable tbody tr:hover {
+  background: #f5f9fc;
+}
+
+.dt-search input,
+.dt-length select {
+  border:
+    1px solid
+    #cccccc !important;
+
+  border-radius: 4px !important;
+
+  padding: 5px !important;
+}
+
+
+/* ============================================================
+   CHART
+   ============================================================ */
+
+.chart-container {
+  min-height: 300px;
+
+  width: 100%;
+
+  background: #ffffff;
+
+  border: 1px solid var(--border-light);
+
+  border-radius: var(--radius);
+
+  padding: 10px;
+}
+
+.bar-chart-row {
+  display: grid;
+
+  grid-template-columns:
+    minmax(100px, 160px)
+    minmax(0, 1fr)
+    auto;
+
+  gap: 8px;
+
+  align-items: center;
+
+  margin-bottom: 7px;
+}
+
+.bar-chart-label {
+  text-align: right;
+
+  font-size: 12px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.bar-chart-track {
+  width: 100%;
+
+  height: 18px;
+
+  background: #eeeeee;
+
+  border-radius: 2px;
+
+  overflow: hidden;
+}
+
+.bar-chart-bar {
+  height: 100%;
+
+  background: var(--nhs-blue);
+}
+
+.bar-chart-value {
+  min-width: 55px;
+
+  font-size: 12px;
+
+  text-align: right;
+}
+
+
+/* ============================================================
+   DATA SUB-TABS
+   ============================================================ */
+
+.sub-tabs {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 4px;
+
+  margin-top: 15px;
+  margin-bottom: 22px;
+
+  border-bottom:
+    1px solid
+    var(--border);
+}
+
+.sub-tab-button {
+  border: 0;
+
+  border-bottom:
+    3px solid
+    transparent;
+
+  background: transparent;
+
+  padding: 9px 13px;
+
+  color: #444444;
+}
+
+.sub-tab-button:hover {
+  background: #f5f5f5;
+
+  color: var(--nhs-blue);
+}
+
+.sub-tab-button.active {
+  color: var(--nhs-blue);
+
+  border-bottom-color:
+    var(--nhs-blue);
+
+  font-weight: 600;
+}
+
+.sub-tab-panel {
+  display: none;
+}
+
+.sub-tab-panel.active {
+  display: block;
+}
+
+
+/* ============================================================
+   CITATION / DISCLOSURE
+   ============================================================ */
+
+.citation-box {
+  padding: 15px;
+
+  background: #f7f7f7;
+
+  border-left:
+    4px solid
+    var(--nhs-blue);
+
+  margin-bottom: 15px;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.footer {
+  text-align: center;
+
+  color: #666666;
+
+  padding: 25px;
+
+  border-top:
+    1px solid
+    var(--border-light);
+
+  margin-top: 25px;
+}
+
+
+/* ============================================================
+   ACCESSIBILITY / FOCUS
+   ============================================================ */
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline:
+    3px solid
+    rgba(
+      0,
+      94,
+      184,
+      0.35
+    );
+
+  outline-offset: 2px;
+}
+
+
+/* ============================================================
+   ERROR MESSAGE
+   ============================================================ */
+
+.error-box {
+  max-width: 700px;
+
+  background: #fff4f4;
+
+  color: #7c1d1d;
+
+  border-left:
+    4px solid
+    #d5281b;
+
+  padding: 15px;
+
+  margin: 20px auto;
+
+  border-radius: var(--radius);
+}
+
+
+/* ============================================================
+   LEAFLET POPUPS / TOOLTIPS
+   ============================================================ */
+
+.leaflet-tooltip {
+  font-size: 13px;
+
+  line-height: 1.45;
+}
+
+.leaflet-popup-content {
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   TABLE NUMBERS
+   ============================================================ */
+
+.numeric {
+  text-align: right;
+}
+
+
+/* ============================================================
+   RESPONSIVE: MEDIUM SCREENS
+   ============================================================ */
+
+@media
+(max-width: 1100px) {
+
+  .summary-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .map-layout {
+    grid-template-columns:
+      minmax(230px, 260px)
+      minmax(0, 1fr);
+  }
+
+}
+
+
+/* ============================================================
+   RESPONSIVE: TABLET / SMALL LAPTOP
+   ============================================================ */
+
+@media
+(max-width: 900px) {
+
+  .app-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .logos {
+    flex-wrap: wrap;
+  }
+
+  .logos img {
+    max-width: 140px;
+  }
+
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-sidebar {
+    padding-right: 0;
+  }
+
+  .checkbox-scroll {
+    max-height: 240px;
+  }
+
+  .two-column-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #map,
+  .map-container {
+    height: 600px;
+
+    min-height: 600px;
+  }
+
+}
+
+
+/* ============================================================
+   RESPONSIVE: MOBILE
+   ============================================================ */
+
+@media
+(max-width: 600px) {
+
+  .page-container {
+    width: 100%;
+
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .header-text h1 {
+    font-size: 23px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .main-tabs {
+    gap: 0;
+  }
+
+  .tab-button {
+    flex:
+      1 1 50%;
+
+    padding:
+      9px 7px;
+
+    font-size: 13px;
+  }
+
+  .button-row {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .button-row button {
+    width: 100%;
+  }
+
+  .bar-chart-row {
+    grid-template-columns:
+      minmax(80px, 110px)
+      minmax(0, 1fr);
+  }
+
+  .bar-chart-value {
+    grid-column: 2;
+
+    text-align: left;
+  }
+
+  #map,
+  .map-container {
+    height: 520px;
+
+    min-height: 520px;
+  }
+
+  .logos img {
+    max-width: 120px;
+    max-height: 75px;
+  }
+
+}
+
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+
+@media print {
+
+  .main-tabs,
+  .button-row,
+  .map-sidebar,
+  .loading-screen,
+  .map-loading {
+    display: none !important;
+  }
+
+  .tab-panel {
+    display: block !important;
+  }
+
+  body {
+    font-size: 11pt;
+  }
+
+  .page-container {
+    width: 100%;
+  }
+
+}

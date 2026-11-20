@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Interactive estimates of chronic hepatitis B burden among included non-UK-born populations in England and Wales using Polaris prevalence estimates and Census 2021 country-of-birth data."
+  >
+
+  <title>
+    Estimated Burden of Chronic Hepatitis B
+  </title>
+
+  <!-- =======================================================
+       LEAFLET
+       ======================================================= -->
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  >
+
+  <!-- =======================================================
+       TOM SELECT
+       Used for multiple Local Authority selection
+       ======================================================= -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css"
+  >
+
+  <!-- =======================================================
+       DATATABLES
+       ======================================================= -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.datatables.net/2.3.5/css/dataTables.dataTables.min.css"
+  >
+
+  <!-- =======================================================
+       OUR SITE CSS
+       ======================================================= -->
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+</head>
+
+
+<body>
+
+  <!-- =======================================================
+       LOADING SCREEN
+       ======================================================= -->
+
+  <div
+    id="loading-screen"
+    class="loading-screen"
+  >
+    <div class="loading-spinner"></div>
+
+    <div class="loading-title">
+      Loading hepatitis B estimates...
+    </div>
+
+    <div
+      id="loading-message"
+      class="loading-message"
+    >
+      Preparing MSOA-level population data and map boundaries.
+    </div>
+  </div>
+
+
+  <!-- =======================================================
+       PAGE
+       ======================================================= -->
+
+  <div class="page-container">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="app-header">
+
+      <div class="header-text">
+
+        <h1>
+          Estimated Burden of Chronic Hepatitis B
+        </h1>
+
+        <p class="subtitle">
+          Among included non-UK-born residents in England and
+          Wales: Polaris prevalence estimates and Census 2021 data
+        </p>
+
+        <p class="author">
+
+          <strong>
+            Dr Alexander Scott
+          </strong>
+
+          <br>
+
+          Clinical Research Fellow, Infection Research Group,
+          Hull University Teaching Hospitals
+
+          <br>
+
+          <a href="mailto:alexander.scott11@nhs.net">
+            alexander.scott11@nhs.net
+          </a>
+
+        </p>
+
+      </div>
+
+
+      <div class="logos">
+
+        <img
+          src="www/research_group.png"
+          alt="Infection Research Group"
+        >
+
+        <img
+          src="www/hull_nhs.png"
+          alt="Hull University Teaching Hospitals NHS Trust"
+        >
+
+      </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         NAVIGATION
+         ===================================================== -->
+
+    <nav
+      class="main-tabs"
+      aria-label="Main navigation"
+    >
+
+      <button
+        type="button"
+        class="tab-button active"
+        data-tab="overview"
+      >
+        Overview
+      </button>
+
+      <button
+        type="button"
+        class="tab-button"
+        data-tab="map-tab"
+      >
+        Interactive Map
+      </button>
+
+      <button
+        type="button"
+        class="tab-button"
+        data-tab="hotspots"
+      >
+        Hotspots
+      </button>
+
+      <button
+        type="button"
+        class="tab-button"
+        data-tab="country-profiles"
+      >
+        Country Profiles
+      </button>
+
+      <button
+        type="button"
+        class="tab-button"
+        data-tab="local-authorities"
+      >
+        Local Authorities
+      </button>
+
+      <button
+        type="button"
+        class="tab-button"
+        data-tab="data-tab"
+      >
+        Data
+      </button>
+
+      <button
+        type="button"
+        class="tab-button"
+        data-tab="methodology"
+      >
+        Methodology
+      </button>
+
+      <button
+        type="button"
+        class="tab-button"
+        data-tab="disclosures"
+      >
+        Disclosures
+      </button>
+
+    </nav>
+
+
+    <!-- =====================================================
+         OVERVIEW
+         ===================================================== -->
+
+    <section
+      id="overview"
+      class="tab-panel active"
+    >
+
+      <h2>
+        Explore where modelled CHB burden is concentrated
+      </h2>
+
+      <p class="text-section">
+        This resource applies country-of-birth-specific chronic
+        hepatitis B prevalence estimates to Census 2021 population
+        counts. It allows exploration of geographic patterns and
+        the populations contributing to those estimates.
+      </p>
+
+
+      <div class="summary-grid">
+
+        <div class="summary-card">
+
+          <div class="summary-label">
+            Expected CHB cases
+          </div>
+
+          <div
+            id="overview-cases"
+            class="big-number"
+          >
+            Loading...
+          </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+          <div class="summary-label">
+            Included residents
+          </div>
+
+          <div
+            id="overview-population"
+            class="big-number"
+          >
+            Loading...
+          </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+          <div class="summary-label">
+            MSOAs modelled
+          </div>
+
+          <div
+            id="overview-msoas"
+            class="big-number"
+          >
+            Loading...
+          </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+          <div class="summary-label">
+            Country / regional groups
+          </div>
+
+          <div
+            id="overview-countries-count"
+            class="big-number"
+          >
+            Loading...
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="button-row">
+
+        <button
+          type="button"
+          class="primary-button"
+          data-open-tab="map-tab"
+        >
+          Explore the map
+        </button>
+
+        <button
+          type="button"
+          class="secondary-button"
+          data-open-tab="hotspots"
+        >
+          View hotspots
+        </button>
+
+        <button
+          type="button"
+          class="secondary-button"
+          data-open-tab="data-tab"
+        >
+          Explore the data
+        </button>
+
+      </div>
+
+
+      <hr>
+
+
+      <h3>
+        Largest country-of-birth contributions
+      </h3>
+
+      <div class="table-wrapper">
+
+        <table
+          id="overview-country-table"
+          class="display"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Country of birth
+              </th>
+
+              <th>
+                Included population
+              </th>
+
+              <th>
+                Prevalence (%)
+              </th>
+
+              <th>
+                Expected CHB cases
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody></tbody>
+
+        </table>
+
+      </div>
+
+
+      <h3>
+        Interpretation
+      </h3>
+
+      <p class="text-section">
+        These are modelled prevalent CHB cases rather than observed
+        diagnoses or estimates of undiagnosed infection. The model
+        does not include UK-born residents.
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         INTERACTIVE MAP
+         ===================================================== -->
+
+    <section
+      id="map-tab"
+      class="tab-panel"
+    >
+
+      <div class="map-layout">
+
+
+        <!-- =================================================
+             MAP SIDEBAR
+             ================================================= -->
+
+        <aside class="map-sidebar">
+
+          <h3>
+            Find MSOAs to display
+          </h3>
+
+
+          <label for="authority-select">
+            MSOA name or code:
+          </label>
+
+          <select
+            id="authority-select"
+            multiple
+          >
+          </select>
+
+
+          <p class="help-text">
+            Select one or more Local Authorities, then tick the
+            individual MSOAs you want to display.
+          </p>
+
+
+          <div class="button-row compact">
+
+            <button
+              type="button"
+              id="select-all-msoas"
+              class="secondary-button"
+            >
+              Select all
+            </button>
+
+            <button
+              type="button"
+              id="clear-all-msoas"
+              class="secondary-button"
+            >
+              Clear all
+            </button>
+
+          </div>
+
+
+          <div
+            id="msoa-selection-summary"
+            class="selection-summary"
+          >
+          </div>
+
+
+          <div
+            id="msoa-checkbox-list"
+            class="checkbox-scroll"
+          >
+          </div>
+
+
+          <hr>
+
+
+          <label for="metric-select">
+            Map metric:
+          </label>
+
+          <select id="metric-select">
+
+            <option value="expected_cases">
+              Expected CHB cases
+            </option>
+
+            <option value="selected_population">
+              Included country-of-birth population
+            </option>
+
+            <option value="cases_per_1000">
+              Cases per 1,000 included residents
+            </option>
+
+          </select>
+
+
+          <label for="threshold-select">
+            Minimum expected CHB cases:
+          </label>
+
+          <select id="threshold-select">
+
+            <option value="0">
+              All
+            </option>
+
+            <option value="5">
+              5
+            </option>
+
+            <option value="10">
+              10
+            </option>
+
+            <option value="20">
+              20
+            </option>
+
+            <option value="50">
+              50
+            </option>
+
+          </select>
+
+
+          <label for="top-n-select">
+            Highest-burden areas:
+          </label>
+
+          <select id="top-n-select">
+
+            <option value="0">
+              All
+            </option>
+
+            <option value="500">
+              Top 500
+            </option>
+
+            <option value="250">
+              Top 250
+            </option>
+
+            <option value="100">
+              Top 100
+            </option>
+
+            <option value="50">
+              Top 50
+            </option>
+
+            <option value="20">
+              Top 20
+            </option>
+
+          </select>
+
+
+          <p class="help-text">
+            Threshold and top-area filters use expected CHB cases
+            regardless of the selected map metric.
+          </p>
+
+
+          <hr>
+
+
+          <h3>
+            Country of birth
+          </h3>
+
+
+          <div class="button-row compact">
+
+            <button
+              type="button"
+              id="select-all-countries"
+              class="secondary-button"
+            >
+              Select all
+            </button>
+
+            <button
+              type="button"
+              id="clear-all-countries"
+              class="secondary-button"
+            >
+              Clear all
+            </button>
+
+          </div>
+
+
+          <div
+            id="country-checkbox-list"
+            class="checkbox-scroll country-list"
+          >
+          </div>
+
+
+          <div class="settings-panel">
+
+            <h3>
+              Map appearance
+            </h3>
+
+
+            <label for="palette-select">
+              Colours:
+            </label>
+
+            <select id="palette-select">
+
+              <option value="YlOrRd">
+                Yellow to red
+              </option>
+
+              <option
+                value="viridis"
+                selected
+              >
+                Viridis
+              </option>
+
+              <option value="magma">
+                Magma
+              </option>
+
+              <option value="Blues">
+                Blue
+              </option>
+
+              <option value="Greens">
+                Green
+              </option>
+
+              <option value="Purples">
+                Purple
+              </option>
+
+            </select>
+
+
+            <label class="inline-checkbox">
+
+              <input
+                id="reverse-palette"
+                type="checkbox"
+                checked
+              >
+
+              Reverse colours
+
+            </label>
+
+
+            <label for="scale-type-select">
+              Colour scale:
+            </label>
+
+            <select id="scale-type-select">
+
+              <option value="continuous">
+                Continuous
+              </option>
+
+              <option value="quantile">
+                Quantiles
+              </option>
+
+              <option value="bins">
+                Equal-width bands
+              </option>
+
+            </select>
+
+
+            <label for="opacity-range">
+              Overlay opacity:
+              <span id="opacity-value">0.8</span>
+            </label>
+
+            <input
+              id="opacity-range"
+              type="range"
+              min="0"
+              max="1"
+              value="0.8"
+              step="0.05"
+            >
+
+
+            <label for="border-range">
+              MSOA boundary thickness:
+              <span id="border-value">0.1</span>
+            </label>
+
+            <input
+              id="border-range"
+              type="range"
+              min="0"
+              max="2"
+              value="0.1"
+              step="0.1"
+            >
+
+          </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             MAP MAIN AREA
+             ================================================= -->
+
+        <main class="map-main">
+
+          <div
+            id="map-summary"
+            class="summary-box"
+          >
+            Loading map data...
+          </div>
+
+
+          <div class="map-container">
+
+            <div id="map"></div>
+
+            <div
+              id="map-loading"
+              class="map-loading"
+            >
+
+              <div class="loading-spinner"></div>
+
+              <div class="loading-title">
+                Loading MSOA map...
+              </div>
+
+              <div class="loading-message">
+                Calculating estimates and drawing the selected
+                MSOA polygons.
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <hr>
+
+
+          <h2>
+            Selected MSOA profile
+          </h2>
+
+
+          <div id="msoa-profile">
+
+            <p>
+              Click a polygon to view its profile.
+            </p>
+
+          </div>
+
+
+          <div class="two-column-grid">
+
+            <div>
+
+              <h3>
+                Country-of-birth contributions
+              </h3>
+
+              <div class="table-wrapper">
+
+                <table
+                  id="msoa-contributions-table"
+                  class="simple-table"
+                >
+
+                  <thead>
+
+                    <tr>
+
+                      <th>
+                        Country of birth
+                      </th>
+
+                      <th>
+                        Population
+                      </th>
+
+                      <th>
+                        Prevalence (%)
+                      </th>
+
+                      <th>
+                        Expected cases
+                      </th>
+
+                    </tr>
+
+                  </thead>
+
+                  <tbody></tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+
+            <div>
+
+              <h3>
+                Top country-of-birth contributions
+              </h3>
+
+              <div
+                id="msoa-contribution-chart"
+                class="chart-container"
+              >
+              </div>
+
+            </div>
+
+          </div>
+
+        </main>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         HOTSPOTS
+         ===================================================== -->
+
+    <section
+      id="hotspots"
+      class="tab-panel"
+    >
+
+      <h2>
+        Highest-burden MSOAs
+      </h2>
+
+      <p>
+        The table follows the selected countries, Local
+        Authorities, selected MSOAs, minimum burden and top-area
+        settings from the map.
+      </p>
+
+
+      <button
+        type="button"
+        id="download-hotspots"
+        class="secondary-button"
+      >
+        Download hotspot results
+      </button>
+
+
+      <div class="table-wrapper">
+
+        <table
+          id="hotspot-table"
+          class="display"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>
+                MSOA name
+              </th>
+
+              <th>
+                MSOA code
+              </th>
+
+              <th>
+                Local Authority
+              </th>
+
+              <th>
+                National rank
+              </th>
+
+              <th>
+                Expected CHB cases
+              </th>
+
+              <th>
+                Included population
+              </th>
+
+              <th>
+                Cases per 1,000
+              </th>
+
+              <th>
+                Top contributors
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         COUNTRY PROFILES
+         ===================================================== -->
+
+    <section
+      id="country-profiles"
+      class="tab-panel"
+    >
+
+      <h2>
+        Country-of-birth profiles
+      </h2>
+
+
+      <label for="profile-country-select">
+        Country of birth:
+      </label>
+
+      <select id="profile-country-select">
+      </select>
+
+
+      <div
+        id="country-profile-card"
+        class="profile-card"
+      >
+      </div>
+
+
+      <button
+        type="button"
+        id="view-country-map"
+        class="primary-button"
+      >
+        View this country on the map
+      </button>
+
+
+      <h3>
+        Highest-burden MSOAs
+      </h3>
+
+
+      <div class="table-wrapper">
+
+        <table
+          id="country-area-table"
+          class="display"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>
+                MSOA name
+              </th>
+
+              <th>
+                MSOA code
+              </th>
+
+              <th>
+                Local Authority
+              </th>
+
+              <th>
+                Rank
+              </th>
+
+              <th>
+                Population
+              </th>
+
+              <th>
+                Expected CHB cases
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody></tbody>
+
+        </table>
+
+      </div>
+
+
+      <button
+        type="button"
+        id="download-country-profile"
+        class="secondary-button"
+      >
+        Download country MSOA data
+      </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         LOCAL AUTHORITIES
+         ===================================================== -->
+
+    <section
+      id="local-authorities"
+      class="tab-panel"
+    >
+
+      <h2>
+        Local Authority burden
+      </h2>
+
+      <p>
+        Local Authorities are assigned using the supplied MSOA
+        2021 to April 2023 Local Authority lookup.
+      </p>
+
+
+      <button
+        type="button"
+        id="download-authorities"
+        class="secondary-button"
+      >
+        Download Local Authority summary
+      </button>
+
+
+      <div class="table-wrapper">
+
+        <table
+          id="authority-table"
+          class="display"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Local Authority
+              </th>
+
+              <th>
+                Authority code
+              </th>
+
+              <th>
+                Rank
+              </th>
+
+              <th>
+                Included population
+              </th>
+
+              <th>
+                Expected CHB cases
+              </th>
+
+              <th>
+                Cases per 1,000 included residents
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody></tbody>
+
+        </table>
+
+      </div>
+
+
+      <h3>
+        Inspect a Local Authority
+      </h3>
+
+
+      <label for="profile-authority-select">
+        Local Authority:
+      </label>
+
+      <select id="profile-authority-select">
+      </select>
+
+
+      <button
+        type="button"
+        id="view-authority-map"
+        class="primary-button"
+      >
+        View authority on map
+      </button>
+
+
+      <h3>
+        Country-of-birth contributors
+      </h3>
+
+
+      <div class="table-wrapper">
+
+        <table
+          id="authority-contributions-table"
+          class="simple-table"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Country of birth
+              </th>
+
+              <th>
+                Population
+              </th>
+
+              <th>
+                Expected CHB cases
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody></tbody>
+
+        </table>
+
+      </div>
+
+
+      <h3>
+        MSOAs within this authority
+      </h3>
+
+
+      <div class="table-wrapper">
+
+        <table
+          id="authority-msoa-table"
+          class="display"
+        >
+
+          <thead>
+
+            <tr>
+
+              <th>
+                MSOA name
+              </th>
+
+              <th>
+                MSOA code
+              </th>
+
+              <th>
+                National rank
+              </th>
+
+              <th>
+                Included population
+              </th>
+
+              <th>
+                Expected CHB cases
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DATA
+         ===================================================== -->
+
+    <section
+      id="data-tab"
+      class="tab-panel"
+    >
+
+      <h2>
+        Data
+      </h2>
+
+
+      <div class="sub-tabs">
+
+        <button
+          type="button"
+          class="sub-tab-button active"
+          data-subtab="country-data"
+        >
+          By country of birth
+        </button>
+
+        <button
+          type="button"
+          class="sub-tab-button"
+          data-subtab="msoa-data"
+        >
+          By MSOA
+        </button>
+
+        <button
+          type="button"
+          class="sub-tab-button"
+          data-subtab="detail-data"
+        >
+          MSOA by country of birth
+        </button>
+
+      </div>
+
+
+      <!-- Country table -->
+
+      <div
+        id="country-data"
+        class="sub-tab-panel active"
+      >
+
+        <p>
+          This fixed national summary is independent of selections
+          made on the map.
+        </p>
+
+
+        <button
+          type="button"
+          id="download-country"
+          class="secondary-button"
+        >
+          Download country table
+        </button>
+
+
+        <div class="table-wrapper">
+
+          <table
+            id="country-data-table"
+            class="display"
+          >
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Country of birth
+                </th>
+
+                <th>
+                  Population
+                </th>
+
+                <th>
+                  Prevalence (%)
+                </th>
+
+                <th>
+                  Expected CHB cases
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+
+      <!-- MSOA table -->
+
+      <div
+        id="msoa-data"
+        class="sub-tab-panel"
+      >
+
+        <p>
+          All MSOAs using the currently selected countries.
+          Map thresholds do not truncate this table.
+        </p>
+
+
+        <button
+          type="button"
+          id="download-msoa"
+          class="secondary-button"
+        >
+          Download MSOA table
+        </button>
+
+
+        <div class="table-wrapper">
+
+          <table
+            id="msoa-data-table"
+            class="display"
+          >
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  MSOA name
+                </th>
+
+                <th>
+                  MSOA code
+                </th>
+
+                <th>
+                  Local Authority
+                </th>
+
+                <th>
+                  National rank
+                </th>
+
+                <th>
+                  Included population
+                </th>
+
+                <th>
+                  Expected CHB cases
+                </th>
+
+                <th>
+                  Cases per 1,000 included residents
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+
+      <!-- Detailed table -->
+
+      <div
+        id="detail-data"
+        class="sub-tab-panel"
+      >
+
+        <p>
+          Underlying MSOA and country-of-birth records.
+        </p>
+
+
+        <button
+          type="button"
+          id="download-detail"
+          class="secondary-button"
+        >
+          Download detailed table
+        </button>
+
+
+        <div class="table-wrapper">
+
+          <table
+            id="detail-data-table"
+            class="display"
+          >
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  MSOA name
+                </th>
+
+                <th>
+                  MSOA code
+                </th>
+
+                <th>
+                  Local Authority
+                </th>
+
+                <th>
+                  Country of birth
+                </th>
+
+                <th>
+                  Population
+                </th>
+
+                <th>
+                  Prevalence (%)
+                </th>
+
+                <th>
+                  Expected CHB cases
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody></tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         METHODOLOGY
+         ===================================================== -->
+
+    <section
+      id="methodology"
+      class="tab-panel"
+    >
+
+      <div class="text-section">
+
+        <h2>
+          Methodology
+        </h2>
+
+
+        <h3>
+          Calculation
+        </h3>
+
+        <p>
+          <strong>
+            Expected CHB cases = country-of-birth population ×
+            country-specific prevalence (%) / 100
+          </strong>
+        </p>
+
+        <p>
+          Country estimates are calculated independently and
+          summed within each MSOA.
+        </p>
+
+
+        <h3>
+          Population and geographic coverage
+        </h3>
+
+        <p>
+          The model describes included non-UK-born
+          country-of-birth populations in England and Wales.
+          It does not estimate total CHB burden in the whole
+          resident population.
+        </p>
+
+
+        <h3>
+          Rates
+        </h3>
+
+        <p>
+          Cases per 1,000 included residents use the population
+          of the selected country-of-birth categories as the
+          denominator.
+        </p>
+
+
+        <h3>
+          Local Authorities
+        </h3>
+
+        <p>
+          MSOA 2021 geography is linked to April 2023 Local
+          Authority geography using the supplied lookup.
+        </p>
+
+
+        <h3>
+          Interpretation
+        </h3>
+
+        <p>
+          Outputs are modelled prevalent cases, not observed or
+          diagnosed cases and not estimates of undiagnosed
+          infection.
+        </p>
+
+
+        <h3>
+          Important limitations
+        </h3>
+
+        <ul>
+
+          <li>
+            Country-level prevalence may not equal prevalence
+            among migrants living in England and Wales.
+          </li>
+
+          <li>
+            Age, duration of residence, vaccination, diagnosis
+            and treatment status are not explicitly modelled.
+          </li>
+
+          <li>
+            No uncertainty intervals are currently presented.
+          </li>
+
+          <li>
+            Use estimates for population-level planning and
+            further assessment, not to infer infection in an
+            individual.
+          </li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DISCLOSURES
+         ===================================================== -->
+
+    <section
+      id="disclosures"
+      class="tab-panel"
+    >
+
+      <div class="text-section">
+
+        <h2>
+          Disclosures
+        </h2>
+
+
+        <h3>
+          Authorship and contact
+        </h3>
+
+        <p>
+
+          <strong>
+            Dr Alexander Scott
+          </strong>
+
+          <br>
+
+          Clinical Research Fellow, Infection Research Group,
+          Hull University Teaching Hospitals
+
+          <br>
+
+          <a href="mailto:alexander.scott11@nhs.net">
+            alexander.scott11@nhs.net
+          </a>
+
+        </p>
+
+
+        <h3>
+          Suggested citation
+        </h3>
+
+        <div class="citation-box">
+
+          <p>
+            Scott A, Easom N.
+            <em>
+              Estimated Burden of Chronic Hepatitis B: an
+              interactive MSOA-level modelling tool using Polaris
+              prevalence estimates and Census 2021
+              country-of-birth data.
+            </em>
+            Hull University Teaching Hospitals NHS Trust; 2026.
+          </p>
+
+        </div>
+
+
+        <h3>
+          Polaris Observatory
+        </h3>
+
+        <p>
+
+          <a
+            href="https://cdafound.org/polaris/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Polaris Observatory - CDA Foundation
+          </a>
+
+        </p>
+
+        <p>
+          Polaris Observatory Collaborators.
+          <em>
+            Global prevalence, cascade of care, and prophylaxis
+            coverage of hepatitis B in 2022: a modelling study.
+          </em>
+          The Lancet Gastroenterology &amp; Hepatology.
+          2023;8(10):879-907.
+        </p>
+
+
+        <h3>
+          Coding support
+        </h3>
+
+        <p>
+          Microsoft 365 Copilot provided coding support for R,
+          mapping, data processing and web presentation.
+        </p>
+
+        <p>
+          The authors remain responsible for checking the inputs,
+          calculations, interpretation and published application.
+        </p>
+
+
+        <h3>
+          Data sources
+        </h3>
+
+        <ul>
+
+          <li>
+            ONS Census 2021 country-of-birth population data.
+          </li>
+
+          <li>
+            Polaris Observatory CHB prevalence estimates.
+          </li>
+
+          <li>
+            MSOA 2021 to April 2023 Local Authority lookup for
+            England and Wales.
+          </li>
+
+          <li>
+            OpenStreetMap background mapping.
+          </li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="footer">
+
+      <strong>
+        Produced and published by Dr Alexander Scott
+      </strong>
+
+      <br>
+
+      <a href="mailto:alexander.scott11@nhs.net">
+        alexander.scott11@nhs.net
+      </a>
+
+    </footer>
+
+  </div>
+
+
+  <!-- =======================================================
+       JAVASCRIPT LIBRARIES
+       ======================================================= -->
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  ></script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"
+  ></script>
+
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+  ></script>
+
+  <script
+    src="https://cdn.datatables.net/2.3.5/js/dataTables.min.js"
+  ></script>
+
+
+  <!-- =======================================================
+       OUR WEBSITE JAVASCRIPT
+       ======================================================= -->
+
+  <script src="app.js"></script>
+
+</body>
+</html>
