@@ -1503,13 +1503,10 @@
     
     function renderLegend(scale) {
   if (state.legend) {
-    state.map.removeControl(
-      state.legend
-    );
+    state.map.removeControl(state.legend);
   }
 
-  const metric =
-    byId("metric-select").value;
+  const metric = byId("metric-select").value;
 
   const title =
     metric === "selected_population"
@@ -1519,121 +1516,94 @@
         : "Expected CHB cases";
 
   const minimum =
-    scale.breaks.length > 0
+    scale.breaks.length
       ? scale.breaks[0]
       : 0;
 
   const maximum =
-    scale.breaks.length > 0
-      ? scale.breaks[
-          scale.breaks.length - 1
-        ]
+    scale.breaks.length
+      ? scale.breaks[scale.breaks.length - 1]
       : 0;
 
-  const gradientStops =
-    scale.palette
-      .map(
-        (colour, index) => {
-          const percentage =
-            scale.palette.length > 1
-              ? (
-                  index /
-                  (
-                    scale.palette.length - 1
-                  )
-                ) * 100
-              : 0;
+  /*
+   * Build a smooth CSS gradient from the active palette.
+   * This automatically respects reversed palettes because
+   * getSelectedPalette() has already reversed scale.palette.
+   */
+  const gradientStops = scale.palette
+    .map((colour, index) => {
+      const position =
+        scale.palette.length > 1
+          ? (index / (scale.palette.length - 1)) * 100
+          : 0;
 
-          return `${colour} ${percentage}%`;
-        }
-      )
-      .join(", ");
+      return `${colour} ${position}%`;
+    })
+    .join(", ");
 
   state.legend = L.control({
     position: "bottomright"
   });
 
-  state.legend.onAdd =
-    function onAdd() {
-      const div =
-        L.DomUtil.create(
-          "div",
-          "leaflet-control leaflet-bar"
-        );
+  state.legend.onAdd = function onAdd() {
+    const div = L.DomUtil.create(
+      "div",
+      "leaflet-control map-gradient-legend"
+    );
 
-      div.style.background =
-        "rgba(255, 255, 255, 0.96)";
+    div.style.background = "rgba(255,255,255,0.96)";
+    div.style.padding = "10px 12px";
+    div.style.border = "1px solid rgba(0,0,0,0.2)";
+    div.style.borderRadius = "4px";
+    div.style.boxShadow = "0 1px 5px rgba(0,0,0,0.25)";
+    div.style.minWidth = "200px";
 
-      div.style.padding =
-        "10px 12px";
+    div.innerHTML = `
+      <div
+        style="
+          margin-bottom:7px;
+          font-weight:600;
+          font-size:14px;
+        "
+      >
+        ${escapeHtml(title)}
+      </div>
 
-      div.style.lineHeight =
-        "1.3";
+      <div
+        style="
+          width:190px;
+          height:18px;
+          background:linear-gradient(
+            to right,
+            ${gradientStops}
+          );
+          border:1px solid rgba(0,0,0,0.25);
+          border-radius:2px;
+        "
+      ></div>
 
-      div.style.minWidth =
-        "210px";
+      <div
+        style="
+          width:190px;
+          display:flex;
+          justify-content:space-between;
+          margin-top:4px;
+          font-size:11px;
+          color:#333;
+        "
+      >
+        <span>${formatNumber(minimum)}</span>
+        <span>${formatNumber(maximum)}</span>
+      </div>
+    `;
 
-      div.style.borderRadius =
-        "6px";
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
 
-      div.innerHTML = `
-        <div
-          style="
-            font-weight:600;
-            margin-bottom:7px;
-            font-size:13px;
-          "
-        >
-          ${escapeHtml(title)}
-        </div>
+    return div;
+  };
 
-        <div
-          style="
-            width:190px;
-            height:16px;
-            border:1px solid rgba(0,0,0,0.22);
-            border-radius:3px;
-            background:linear-gradient(
-              to right,
-              ${gradientStops}
-            );
-          "
-        ></div>
-
-        <div
-          style="
-            display:flex;
-            justify-content:space-between;
-            width:190px;
-            margin-top:4px;
-            font-size:11px;
-            color:#333333;
-          "
-        >
-          <span>
-            ${formatNumber(minimum)}
-          </span>
-
-          <span>
-            ${formatNumber(maximum)}
-          </span>
-        </div>
-      `;
-
-      L.DomEvent.disableClickPropagation(
-        div
-      );
-
-      L.DomEvent.disableScrollPropagation(
-        div
-      );
-
-      return div;
-    };
-
-  state.legend.addTo(
-    state.map
-  );
+  state.legend.addTo(state.map);
 }
     
     /* ============================================================
