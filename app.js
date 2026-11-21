@@ -1190,37 +1190,32 @@
     function createColourFunction(rows) {
       const palette =
         getSelectedPalette();
-    
+
+      const scaleType =
+        byId("scale-type-select").value;
+
       const values = rows
         .map(getMetricValue)
         .filter(Number.isFinite)
         .sort((a, b) => a - b);
-    
-     const scaleType =
-  byId("scale-type-select").value;
 
-if (!values.length) {
-  return {
-    colour: () => "#cccccc",
-    breaks: new Array(
-      palette.length + 1
-    ).fill(0),
-    palette,
-    scaleType
-  };
-}
-    
-      const scaleType =
-        byId("scale-type-select").value;
-    
-      const minimum =
-        values[0];
-    
-      const maximum =
-        values[values.length - 1];
-    
+      if (!values.length) {
+        return {
+          colour: () => "#cccccc",
+          breaks: new Array(
+            palette.length + 1
+          ).fill(0),
+          palette,
+          scaleType,
+          minimum: 0,
+          maximum: 0
+        };
+      }
+
+      const minimum = values[0];
+      const maximum = values[values.length - 1];
       const breaks = [];
-    
+
       if (scaleType === "quantile") {
         for (
           let index = 0;
@@ -1235,9 +1230,8 @@ if (!values.length) {
           );
         }
       } else {
-        const range =
-          maximum - minimum || 1;
-    
+        const range = maximum - minimum || 1;
+
         for (
           let index = 0;
           index <= palette.length;
@@ -1245,504 +1239,305 @@ if (!values.length) {
         ) {
           breaks.push(
             minimum +
-            range *
-            index /
-            palette.length
+            range * index / palette.length
           );
         }
       }
-    
+
       function colour(value) {
         if (!Number.isFinite(value)) {
           return "#cccccc";
         }
-    
+
         if (maximum === minimum) {
-          return palette[
-            palette.length - 1
-          ];
+          return palette[palette.length - 1];
         }
-    
+
         if (scaleType === "continuous") {
-          const proportion =
-            (value - minimum) /
-            (maximum - minimum);
-    
-          const index = Math.min(
-            palette.length - 1,
+          const proportion = Math.min(
+            1,
             Math.max(
               0,
-              Math.floor(
-                proportion *
-                palette.length
-              )
+              (value - minimum) / (maximum - minimum)
             )
           );
-    
+
+          const index = Math.min(
+            palette.length - 1,
+            Math.floor(proportion * palette.length)
+          );
+
           return palette[index];
         }
-    
+
         for (
           let index = 0;
           index < palette.length;
           index += 1
         ) {
-          if (
-            value <= breaks[index + 1]
-          ) {
+          if (value <= breaks[index + 1]) {
             return palette[index];
           }
         }
-    
-        return palette[
-          palette.length - 1
-        ];
+
+        return palette[palette.length - 1];
       }
-    
+
       return {
-  colour,
-  breaks,
-  palette,
-  scaleType
-};
-    
-    
+        colour,
+        breaks,
+        palette,
+        scaleType,
+        minimum,
+        maximum
+      };
+    }
+
+
     /* ============================================================
        MAP
        ============================================================ */
-   function initialiseMap() {
-    const svgRenderer = L.svg({
-      padding: 0.5
-    });
-  
-    state.map = L.map(
-      "map",
-      {
-        minZoom: 5,
-        maxZoom: 14,
-        worldCopyJump: false,
-  
-        /*
-         * SVG is more reliable than Canvas for complex MSOA
-         * MultiPolygon boundaries and avoids triangle artefacts.
-         */
-        preferCanvas: false,
-        renderer: svgRenderer
-      }
-    );
-  
-    L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        minZoom: 5,
-        maxZoom: 14,
-        noWrap: true,
-  
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">' +
-          "OpenStreetMap contributors</a>"
-      }
-    ).addTo(state.map);
-  
-    state.map.fitBounds([
-      [49, -11],
-      [61, 3]
-    ]);
-  
-    state.geoLayer = L.geoJSON(
-      state.geojson,
-      {
-        /*
-         * Do not simplify polygon coordinates in the browser.
-         * A higher smoothFactor can create artificial triangular
-         * joins across detailed MultiPolygon boundaries.
-         */
-        smoothFactor: 0,
-  
-        /*
-         * Keep each MSOA rendered through SVG rather than Canvas.
-         */
-        renderer: svgRenderer,
-  
-        style: {
-          fillColor: "#cccccc",
-          fillOpacity: 0.8,
-          color: "#ffffff",
-          weight: 0.1,
-          opacity: 1,
-          lineCap: "round",
-          lineJoin: "round",
-          fillRule: "evenodd"
-        },
-  
-        onEachFeature(feature, layer) {
-          const code =
-            feature.properties
-              ?.msoa21_code;
-  
-          layer.on(
-            "click",
-            () => {
-              state.selectedMsoaCode =
-                code;
-  
-              renderSelectedMsoaProfile();
-            }
-          );
+
+    function initialiseMap() {
+      state.map = L.map(
+        "map",
+        {
+          minZoom: 5,
+          maxZoom: 14,
+          worldCopyJump: false,
+          preferCanvas: true
         }
-      }
-    ).addTo(state.map);
-  }
-    
+      );
+
+      L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          minZoom: 5,
+          maxZoom: 14,
+          noWrap: true,
+
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">' +
+            "OpenStreetMap contributors</a>"
+        }
+      ).addTo(state.map);
+
+      state.map.fitBounds([
+        [49, -11],
+        [61, 3]
+      ]);
+
+      state.geoLayer = L.geoJSON(
+        state.geojson,
+        {
+          smoothFactor: 1.5,
+
+          style: {
+            fillColor: "#cccccc",
+            fillOpacity: 0.8,
+            color: "#ffffff",
+            weight: 0.1,
+            opacity: 1
+          },
+
+          onEachFeature(feature, layer) {
+            const code =
+              feature.properties
+                ?.msoa21_code;
+
+            layer.on(
+              "click",
+              () => {
+                state.selectedMsoaCode = code;
+                renderSelectedMsoaProfile();
+              }
+            );
+          }
+        }
+      ).addTo(state.map);
+    }
+
     function renderMap() {
-      if (
-        !state.map ||
-        !state.geoLayer
-      ) {
+      if (!state.map || !state.geoLayer) {
         return;
       }
-    
+
       showMapLoading();
-    
+
       window.setTimeout(() => {
-        const displayedByCode =
-          new Map(
+        try {
+          const displayedByCode = new Map(
             state.currentSummary.map(
               row => [row.code, row]
             )
           );
-    
-        const scale =
-          createColourFunction(
+
+          const scale = createColourFunction(
             state.currentSummary
           );
-    
-        const opacity =
-          Number(
+
+          const opacity = Number(
             byId("opacity-range").value
           );
-    
-        const borderWeight =
-          Number(
+
+          const borderWeight = Number(
             byId("border-range").value
           );
-    
-        state.geoLayer.eachLayer(layer => {
-          const code =
-            layer.feature.properties
-              ?.msoa21_code;
-    
-          const row =
-            displayedByCode.get(code);
-    
-          if (!row) {
+
+          state.geoLayer.eachLayer(layer => {
+            const code =
+              layer.feature.properties
+                ?.msoa21_code;
+
+            const row = displayedByCode.get(code);
+
+            if (!row) {
+              layer.setStyle({
+                fillOpacity: 0,
+                opacity: 0,
+                weight: 0
+              });
+
+              layer.unbindTooltip();
+              return;
+            }
+
+            const value = getMetricValue(row);
+
             layer.setStyle({
-              fillOpacity: 0,
-              opacity: 0,
-              weight: 0
-            });
-    
-            layer.unbindTooltip();
-    
-            return;
-          }
-    
-          const value =
-            getMetricValue(row);
-    
-          layer.setStyle({
-            fillColor:
-              scale.colour(value),
-    
-            fillOpacity:
-              Number.isFinite(opacity)
+              fillColor: scale.colour(value),
+              fillOpacity: Number.isFinite(opacity)
                 ? opacity
                 : 0.8,
-    
-            color: "#ffffff",
-    
-            weight:
-              Number.isFinite(borderWeight)
+              color: "#ffffff",
+              weight: Number.isFinite(borderWeight)
                 ? borderWeight
                 : 0.1,
-    
-            opacity: 1
+              opacity: 1
+            });
+
+            layer.bindTooltip(
+              `
+                <strong>${escapeHtml(row.name)}</strong>
+                <br>${escapeHtml(row.laName)}
+                <br>Expected CHB cases: ${formatNumber(row.expectedCases)}
+                <br>Included population: ${formatNumber(row.population)}
+                <br>Cases per 1,000 included: ${formatNumber(row.casesPer1000)}
+                <br>National burden rank: ${formatInteger(row.nationalRank)}
+              `,
+              { sticky: true }
+            );
           });
-    
-          layer.bindTooltip(
-            `
-              <strong>
-                ${escapeHtml(row.name)}
-              </strong>
-    
-              <br>
-              ${escapeHtml(row.laName)}
-    
-              <br>
-              Expected CHB cases:
-              ${formatNumber(row.expectedCases)}
-    
-              <br>
-              Included population:
-              ${formatNumber(row.population)}
-    
-              <br>
-              Cases per 1,000 included:
-              ${formatNumber(row.casesPer1000)}
-    
-              <br>
-              National burden rank:
-              ${formatInteger(row.nationalRank)}
-            `,
-            {
-              sticky: true
-            }
-          );
-        });
-    
-        renderLegend(scale);
-        hideMapLoading();
+
+          renderLegend(scale);
+        } catch (error) {
+          console.error("The map could not be rendered:", error);
+        } finally {
+          hideMapLoading();
+        }
       }, 20);
     }
-    
+
     function renderLegend(scale) {
-  if (state.legend) {
-    state.map.removeControl(
-      state.legend
-    );
-  }
+      if (state.legend) {
+        state.map.removeControl(state.legend);
+        state.legend = null;
+      }
 
-  const metric =
-    byId("metric-select").value;
+      const metric = byId("metric-select").value;
+      const scaleType = scale.scaleType;
 
-  const scaleType =
-    byId("scale-type-select").value;
+      const title =
+        metric === "selected_population"
+          ? "Included population"
+          : metric === "cases_per_1000"
+            ? "Cases per 1,000 included"
+            : "Expected CHB cases";
 
-  const title =
-    metric === "selected_population"
-      ? "Included population"
-      : metric === "cases_per_1000"
-        ? "Cases per 1,000 included"
-        : "Expected CHB cases";
+      state.legend = L.control({
+        position: "bottomright"
+      });
 
-  const minimum =
-    scale.breaks.length > 0
-      ? scale.breaks[0]
-      : 0;
-
-  const maximum =
-    scale.breaks.length > 0
-      ? scale.breaks[
-          scale.breaks.length - 1
-        ]
-      : 0;
-
-  state.legend = L.control({
-    position: "bottomright"
-  });
-
-  state.legend.onAdd =
-    function onAdd() {
-      const div =
-        L.DomUtil.create(
+      state.legend.onAdd = function onAdd() {
+        const div = L.DomUtil.create(
           "div",
           "leaflet-control leaflet-bar"
         );
 
-      div.style.background =
-        "rgba(255,255,255,0.96)";
+        div.style.background = "rgba(255,255,255,0.96)";
+        div.style.padding = "10px 12px";
+        div.style.lineHeight = "1.35";
+        div.style.minWidth = "205px";
+        div.style.borderRadius = "5px";
+        div.style.boxSizing = "border-box";
 
-      div.style.padding =
-        "10px 12px";
+        if (scaleType === "continuous") {
+          const gradientStops = scale.palette
+            .map((colour, index) => {
+              const position =
+                scale.palette.length > 1
+                  ? index / (scale.palette.length - 1) * 100
+                  : 0;
 
-      div.style.lineHeight =
-        "1.35";
-
-      div.style.minWidth =
-        "200px";
-
-      div.style.borderRadius =
-        "5px";
-
-      div.style.boxSizing =
-        "border-box";
-
-      /*
-       * --------------------------------------------
-       * CONTINUOUS SCALE
-       * --------------------------------------------
-       *
-       * Display one progressive gradient bar.
-       */
-      if (scaleType === "continuous") {
-        const gradientStops =
-          scale.palette
-            .map(
-              (colour, index) => {
-                const position =
-                  scale.palette.length > 1
-                    ? (
-                        index /
-                        (
-                          scale.palette.length - 1
-                        )
-                      ) * 100
-                    : 0;
-
-                return (
-                  `${colour} ${position}%`
-                );
-              }
-            )
+              return `${colour} ${position}%`;
+            })
             .join(", ");
 
-        div.innerHTML = `
-          <div
-            style="
-              font-weight:600;
-              margin-bottom:7px;
-              font-size:14px;
-            "
-          >
-            ${escapeHtml(title)}
-          </div>
-
-          <div
-            style="
-              width:190px;
-              height:18px;
-              background:
-                linear-gradient(
-                  to right,
-                  ${gradientStops}
-                );
-              border:
-                1px solid rgba(0,0,0,0.22);
-              border-radius:3px;
-            "
-          ></div>
-
-          <div
-            style="
-              display:flex;
-              justify-content:space-between;
-              width:190px;
-              margin-top:4px;
-              font-size:11px;
-              color:#333333;
-            "
-          >
-            <span>
-              ${formatNumber(minimum)}
-            </span>
-
-            <span>
-              ${formatNumber(maximum)}
-            </span>
-          </div>
-        `;
-      }
-
-      /*
-       * --------------------------------------------
-       * QUANTILES OR EQUAL-WIDTH BANDS
-       * --------------------------------------------
-       *
-       * These remain discrete classes because the
-       * underlying classification is discrete.
-       */
-      else {
-        const classificationLabel =
-          scaleType === "quantile"
-            ? "Quantiles"
-            : "Equal-width bands";
-
-        let html = `
-          <div
-            style="
-              font-weight:600;
-              margin-bottom:2px;
-              font-size:14px;
-            "
-          >
-            ${escapeHtml(title)}
-          </div>
-
-          <div
-            style="
-              margin-bottom:7px;
-              font-size:11px;
-              color:#666666;
-            "
-          >
-            ${classificationLabel}
-          </div>
-        `;
-
-        for (
-          let index = 0;
-          index < scale.palette.length;
-          index += 1
-        ) {
-          const lower =
-            scale.breaks[index];
-
-          const upper =
-            scale.breaks[index + 1];
-
-          html += `
-            <div
-              style="
-                display:flex;
-                align-items:center;
-                margin:2px 0;
-                white-space:nowrap;
-              "
-            >
-              <span
-                style="
-                  display:inline-block;
-                  width:18px;
-                  height:16px;
-                  flex:0 0 18px;
-                  margin-right:7px;
-                  background:
-                    ${scale.palette[index]};
-                  border:
-                    1px solid rgba(0,0,0,0.08);
-                "
-              ></span>
-
-              <span
-                style="
-                  font-size:12px;
-                  color:#333333;
-                "
-              >
-                ${formatNumber(lower)}–${formatNumber(upper)}
-              </span>
+          div.innerHTML = `
+            <div style="font-weight:600;margin-bottom:7px;font-size:14px;">
+              ${escapeHtml(title)}
+            </div>
+            <div style="width:190px;height:18px;background:linear-gradient(to right, ${gradientStops});border:1px solid rgba(0,0,0,0.22);border-radius:3px;"></div>
+            <div style="display:flex;justify-content:space-between;width:190px;margin-top:4px;font-size:11px;color:#333333;">
+              <span>${formatNumber(scale.minimum)}</span>
+              <span>${formatNumber(scale.maximum)}</span>
             </div>
           `;
+        } else {
+          const classificationLabel =
+            scaleType === "quantile"
+              ? "Quantiles"
+              : "Equal-width bands";
+
+          let html = `
+            <div style="font-weight:600;margin-bottom:2px;font-size:14px;">
+              ${escapeHtml(title)}
+            </div>
+            <div style="margin-bottom:7px;font-size:11px;color:#666666;">
+              ${classificationLabel}
+            </div>
+          `;
+
+          for (
+            let index = 0;
+            index < scale.palette.length;
+            index += 1
+          ) {
+            const lower = scale.breaks[index];
+            const upper = scale.breaks[index + 1];
+
+            html += `
+              <div style="display:flex;align-items:center;margin:2px 0;white-space:nowrap;">
+                <span style="display:inline-block;width:18px;height:16px;flex:0 0 18px;margin-right:7px;background:${scale.palette[index]};border:1px solid rgba(0,0,0,0.08);"></span>
+                <span style="font-size:12px;color:#333333;">
+                  ${formatNumber(lower)}–${formatNumber(upper)}
+                </span>
+              </div>
+            `;
+          }
+
+          div.innerHTML = html;
         }
 
-        div.innerHTML = html;
-      }
+        L.DomEvent.disableClickPropagation(div);
+        L.DomEvent.disableScrollPropagation(div);
 
-      L.DomEvent.disableClickPropagation(
-        div
-      );
+        return div;
+      };
 
-      L.DomEvent.disableScrollPropagation(
-        div
-      );
+      state.legend.addTo(state.map);
+    }
 
-      return div;
-    };
-
-  state.legend.addTo(
-    state.map
-  );
-}
     /* ============================================================
        MAP SUMMARY
        ============================================================ */
