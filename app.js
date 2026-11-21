@@ -1196,15 +1196,19 @@
         .filter(Number.isFinite)
         .sort((a, b) => a - b);
     
-      if (!values.length) {
-        return {
-          colour: () => "#cccccc",
-          breaks: new Array(
-            palette.length + 1
-          ).fill(0),
-          palette
-        };
-      }
+     const scaleType =
+  byId("scale-type-select").value;
+
+if (!values.length) {
+  return {
+    colour: () => "#cccccc",
+    breaks: new Array(
+      palette.length + 1
+    ).fill(0),
+    palette,
+    scaleType
+  };
+}
     
       const scaleType =
         byId("scale-type-select").value;
@@ -1296,11 +1300,11 @@
       }
     
       return {
-        colour,
-        breaks,
-        palette
-      };
-    }
+  colour,
+  breaks,
+  palette,
+  scaleType
+};
     
     
     /* ============================================================
