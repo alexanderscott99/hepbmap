@@ -1502,81 +1502,139 @@
     }
     
     function renderLegend(scale) {
-      if (state.legend) {
-        state.map.removeControl(
-          state.legend
+  if (state.legend) {
+    state.map.removeControl(
+      state.legend
+    );
+  }
+
+  const metric =
+    byId("metric-select").value;
+
+  const title =
+    metric === "selected_population"
+      ? "Included population"
+      : metric === "cases_per_1000"
+        ? "Cases per 1,000 included"
+        : "Expected CHB cases";
+
+  const minimum =
+    scale.breaks.length > 0
+      ? scale.breaks[0]
+      : 0;
+
+  const maximum =
+    scale.breaks.length > 0
+      ? scale.breaks[
+          scale.breaks.length - 1
+        ]
+      : 0;
+
+  const gradientStops =
+    scale.palette
+      .map(
+        (colour, index) => {
+          const percentage =
+            scale.palette.length > 1
+              ? (
+                  index /
+                  (
+                    scale.palette.length - 1
+                  )
+                ) * 100
+              : 0;
+
+          return `${colour} ${percentage}%`;
+        }
+      )
+      .join(", ");
+
+  state.legend = L.control({
+    position: "bottomright"
+  });
+
+  state.legend.onAdd =
+    function onAdd() {
+      const div =
+        L.DomUtil.create(
+          "div",
+          "leaflet-control leaflet-bar"
         );
-      }
-    
-      const metric =
-        byId("metric-select").value;
-    
-      const title =
-        metric === "selected_population"
-          ? "Included population"
-          : metric === "cases_per_1000"
-            ? "Cases per 1,000 included"
-            : "Expected CHB cases";
-    
-      state.legend = L.control({
-        position: "bottomright"
-      });
-    
-      state.legend.onAdd =
-        function onAdd() {
-          const div =
-            L.DomUtil.create(
-              "div",
-              "leaflet-control leaflet-bar"
+
+      div.style.background =
+        "rgba(255, 255, 255, 0.96)";
+
+      div.style.padding =
+        "10px 12px";
+
+      div.style.lineHeight =
+        "1.3";
+
+      div.style.minWidth =
+        "210px";
+
+      div.style.borderRadius =
+        "6px";
+
+      div.innerHTML = `
+        <div
+          style="
+            font-weight:600;
+            margin-bottom:7px;
+            font-size:13px;
+          "
+        >
+          ${escapeHtml(title)}
+        </div>
+
+        <div
+          style="
+            width:190px;
+            height:16px;
+            border:1px solid rgba(0,0,0,0.22);
+            border-radius:3px;
+            background:linear-gradient(
+              to right,
+              ${gradientStops}
             );
-    
-          div.style.background =
-            "white";
-    
-          div.style.padding =
-            "8px";
-    
-          div.style.lineHeight =
-            "1.4";
-    
-          let html =
-            `<strong>${escapeHtml(title)}</strong><br>`;
-    
-          for (
-            let index = 0;
-            index < scale.palette.length;
-            index += 1
-          ) {
-            const lower =
-              scale.breaks[index];
-    
-            const upper =
-              scale.breaks[index + 1];
-    
-            html += `
-              <div>
-                <span style="
-                  display:inline-block;
-                  width:14px;
-                  height:14px;
-                  margin-right:5px;
-                  vertical-align:middle;
-                  background:${scale.palette[index]};
-                "></span>
-    
-                ${formatNumber(lower)}–${formatNumber(upper)}
-              </div>
-            `;
-          }
-    
-          div.innerHTML = html;
-    
-          return div;
-        };
-    
-      state.legend.addTo(state.map);
-    }
-    
+          "
+        ></div>
+
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            width:190px;
+            margin-top:4px;
+            font-size:11px;
+            color:#333333;
+          "
+        >
+          <span>
+            ${formatNumber(minimum)}
+          </span>
+
+          <span>
+            ${formatNumber(maximum)}
+          </span>
+        </div>
+      `;
+
+      L.DomEvent.disableClickPropagation(
+        div
+      );
+
+      L.DomEvent.disableScrollPropagation(
+        div
+      );
+
+      return div;
+    };
+
+  state.legend.addTo(
+    state.map
+  );
+}
     
     /* ============================================================
        MAP SUMMARY
