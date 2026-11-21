@@ -1503,10 +1503,16 @@
     
     function renderLegend(scale) {
   if (state.legend) {
-    state.map.removeControl(state.legend);
+    state.map.removeControl(
+      state.legend
+    );
   }
 
-  const metric = byId("metric-select").value;
+  const metric =
+    byId("metric-select").value;
+
+  const scaleType =
+    byId("scale-type-select").value;
 
   const title =
     metric === "selected_population"
@@ -1516,96 +1522,223 @@
         : "Expected CHB cases";
 
   const minimum =
-    scale.breaks.length
+    scale.breaks.length > 0
       ? scale.breaks[0]
       : 0;
 
   const maximum =
-    scale.breaks.length
-      ? scale.breaks[scale.breaks.length - 1]
+    scale.breaks.length > 0
+      ? scale.breaks[
+          scale.breaks.length - 1
+        ]
       : 0;
-
-  /*
-   * Build a smooth CSS gradient from the active palette.
-   * This automatically respects reversed palettes because
-   * getSelectedPalette() has already reversed scale.palette.
-   */
-  const gradientStops = scale.palette
-    .map((colour, index) => {
-      const position =
-        scale.palette.length > 1
-          ? (index / (scale.palette.length - 1)) * 100
-          : 0;
-
-      return `${colour} ${position}%`;
-    })
-    .join(", ");
 
   state.legend = L.control({
     position: "bottomright"
   });
 
-  state.legend.onAdd = function onAdd() {
-    const div = L.DomUtil.create(
-      "div",
-      "leaflet-control map-gradient-legend"
-    );
+  state.legend.onAdd =
+    function onAdd() {
+      const div =
+        L.DomUtil.create(
+          "div",
+          "leaflet-control leaflet-bar"
+        );
 
-    div.style.background = "rgba(255,255,255,0.96)";
-    div.style.padding = "10px 12px";
-    div.style.border = "1px solid rgba(0,0,0,0.2)";
-    div.style.borderRadius = "4px";
-    div.style.boxShadow = "0 1px 5px rgba(0,0,0,0.25)";
-    div.style.minWidth = "200px";
+      div.style.background =
+        "rgba(255,255,255,0.96)";
 
-    div.innerHTML = `
-      <div
-        style="
-          margin-bottom:7px;
-          font-weight:600;
-          font-size:14px;
-        "
-      >
-        ${escapeHtml(title)}
-      </div>
+      div.style.padding =
+        "10px 12px";
 
-      <div
-        style="
-          width:190px;
-          height:18px;
-          background:linear-gradient(
-            to right,
-            ${gradientStops}
-          );
-          border:1px solid rgba(0,0,0,0.25);
-          border-radius:2px;
-        "
-      ></div>
+      div.style.lineHeight =
+        "1.35";
 
-      <div
-        style="
-          width:190px;
-          display:flex;
-          justify-content:space-between;
-          margin-top:4px;
-          font-size:11px;
-          color:#333;
-        "
-      >
-        <span>${formatNumber(minimum)}</span>
-        <span>${formatNumber(maximum)}</span>
-      </div>
-    `;
+      div.style.minWidth =
+        "200px";
 
-    L.DomEvent.disableClickPropagation(div);
-    L.DomEvent.disableScrollPropagation(div);
+      div.style.borderRadius =
+        "5px";
 
-    return div;
-  };
+      div.style.boxSizing =
+        "border-box";
 
-  state.legend.addTo(state.map);
+      /*
+       * --------------------------------------------
+       * CONTINUOUS SCALE
+       * --------------------------------------------
+       *
+       * Display one progressive gradient bar.
+       */
+      if (scaleType === "continuous") {
+        const gradientStops =
+          scale.palette
+            .map(
+              (colour, index) => {
+                const position =
+                  scale.palette.length > 1
+                    ? (
+                        index /
+                        (
+                          scale.palette.length - 1
+                        )
+                      ) * 100
+                    : 0;
+
+                return (
+                  `${colour} ${position}%`
+                );
+              }
+            )
+            .join(", ");
+
+        div.innerHTML = `
+          <div
+            style="
+              font-weight:600;
+              margin-bottom:7px;
+              font-size:14px;
+            "
+          >
+            ${escapeHtml(title)}
+          </div>
+
+          <div
+            style="
+              width:190px;
+              height:18px;
+              background:
+                linear-gradient(
+                  to right,
+                  ${gradientStops}
+                );
+              border:
+                1px solid rgba(0,0,0,0.22);
+              border-radius:3px;
+            "
+          ></div>
+
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              width:190px;
+              margin-top:4px;
+              font-size:11px;
+              color:#333333;
+            "
+          >
+            <span>
+              ${formatNumber(minimum)}
+            </span>
+
+            <span>
+              ${formatNumber(maximum)}
+            </span>
+          </div>
+        `;
+      }
+
+      /*
+       * --------------------------------------------
+       * QUANTILES OR EQUAL-WIDTH BANDS
+       * --------------------------------------------
+       *
+       * These remain discrete classes because the
+       * underlying classification is discrete.
+       */
+      else {
+        const classificationLabel =
+          scaleType === "quantile"
+            ? "Quantiles"
+            : "Equal-width bands";
+
+        let html = `
+          <div
+            style="
+              font-weight:600;
+              margin-bottom:2px;
+              font-size:14px;
+            "
+          >
+            ${escapeHtml(title)}
+          </div>
+
+          <div
+            style="
+              margin-bottom:7px;
+              font-size:11px;
+              color:#666666;
+            "
+          >
+            ${classificationLabel}
+          </div>
+        `;
+
+        for (
+          let index = 0;
+          index < scale.palette.length;
+          index += 1
+        ) {
+          const lower =
+            scale.breaks[index];
+
+          const upper =
+            scale.breaks[index + 1];
+
+          html += `
+            <div
+              style="
+                display:flex;
+                align-items:center;
+                margin:2px 0;
+                white-space:nowrap;
+              "
+            >
+              <span
+                style="
+                  display:inline-block;
+                  width:18px;
+                  height:16px;
+                  flex:0 0 18px;
+                  margin-right:7px;
+                  background:
+                    ${scale.palette[index]};
+                  border:
+                    1px solid rgba(0,0,0,0.08);
+                "
+              ></span>
+
+              <span
+                style="
+                  font-size:12px;
+                  color:#333333;
+                "
+              >
+                ${formatNumber(lower)}–${formatNumber(upper)}
+              </span>
+            </div>
+          `;
+        }
+
+        div.innerHTML = html;
+      }
+
+      L.DomEvent.disableClickPropagation(
+        div
+      );
+
+      L.DomEvent.disableScrollPropagation(
+        div
+      );
+
+      return div;
+    };
+
+  state.legend.addTo(
+    state.map
+  );
 }
-    
     /* ============================================================
        MAP SUMMARY
        ============================================================ */
